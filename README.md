@@ -1,174 +1,179 @@
-# RecoverAI — Autonomous Revenue Recovery Agent
+# RecoverAI — AI Revenue Recovery Agent
 
-RecoverAI is a hackathon-ready prototype for the **AI Revenue Recovery** track.
+**Detect revenue at risk. Decide the intervention. Recover it.**
 
-It detects revenue at risk, analyzes the reason, estimates recovery probability, selects a bounded intervention, executes a simulated or Razorpay Test Mode action, records the result, and exposes the recovery metrics in a merchant dashboard.
+RecoverAI is an AI-powered revenue recovery agent that identifies failed or abandoned payments still worth pursuing — then analyzes context, predicts recovery probability, selects the right intervention, applies safety guardrails, and tracks the recovered revenue.
+
+> Turn failed payments into measurable recovery opportunities.
+
+---
+
+## The Problem
+
+A failed payment doesn't always mean lost revenue. It could be insufficient funds, a temporary bank decline, an expired card, a timeout, or an abandoned checkout — each recoverable in a different way.
+
+Traditional systems stop at:
+
+```
+Payment Failed → Show Failed Transaction
+```
+
+RecoverAI turns this into:
+
+```
+Payment Failure → Understand → Predict Recovery Probability
+→ Select Intervention → Apply Guardrails → Execute
+→ Track Outcome → Measure Recovered Revenue
+```
+
+---
+
+## What RecoverAI Does
+
+For every failed transaction, RecoverAI evaluates amount, failure reason, customer payment history, and behavior — then produces a structured decision:
+
+| Field | Value |
+|---|---|
+| Transaction | ₹25,000 |
+| Failure | Insufficient Funds |
+| Recovery Probability | 77% |
+| Expected Recovery | ₹19,250 |
+| Recommended Action | Send Payment Link |
+| Guardrail | AUTO |
+
+Instead of "failed," RecoverAI sees a **high-value recovery opportunity.**
+
+---
+
+## How It Works
+
+### 1. Detect
+Flags failed, abandoned, or at-risk transactions as recovery candidates.
+
+### 2. Understand
+Pulls payment context (amount, status, failure reason, history) and customer context (past payments, value, behavior) to separate genuine recovery candidates from risky ones.
+
+### 3. Predict
+Estimates recovery probability and expected recovery value:
+
+```
+Expected Recovery = Transaction Amount × Recovery Probability
+₹25,000 × 0.77 = ₹19,250
+```
+
+### 4. Decide
+Matches each situation to the right action:
+
+| Situation | Action |
+|---|---|
+| Insufficient funds | Send payment link |
+| Temporary decline | Retry payment |
+| Abandoned checkout | Recovery message |
+| Expired payment method | Request updated payment |
+| High-risk transaction | Human review |
+| Low recovery probability | Do not auto-pursue |
+
+### 5. Apply Guardrails
+The AI proposes — it doesn't decide alone.
+
+```
+AI PROPOSAL → GUARDRAIL CHECK
+   ├── LOW RISK  → AUTO EXECUTION
+   └── HIGH RISK → HUMAN APPROVAL
+        └── EXECUTE → AUDIT TRAIL
+```
+
+### 6. Execute
+Safe actions run automatically; guarded actions wait for merchant approval.
+
+### 7. Monitor
+Tracks recovery status, amount recovered, action taken, and outcome — closing the loop: **Detect → Decide → Act → Recover → Measure.**
+
+---
+
+## Merchant Dashboard
+
+| Metric | Example | Answers |
+|---|---|---|
+| **Revenue at Risk** | ₹7,29,525 | How much revenue is at risk? |
+| **Recoverable** | ₹7,02,028 | How much can realistically be recovered? |
+| **Expected Recovery** | ₹4,75,683 | What do we expect to recover? |
+| **Recovered** | ₹0 → grows | What have we actually recovered? |
+
+### Recovery Queue
+Prioritized by expected recovery value:
+
+| Customer | Amount | Failure | Probability | Action | Guardrail |
+|---|---|---|---|---|---|
+| Ananya | ₹25,000 | Insufficient funds | 77% | Send Payment Link | AUTO |
+| Customer B | ₹12,500 | Bank decline | 64% | Retry Payment | AUTO |
+| Customer C | ₹40,000 | High risk | 21% | Review | APPROVAL |
+
+This turns *"here are 100 failed payments"* into *"here are the opportunities most worth acting on."*
+
+---
+
+## Explainable Decisions
+
+Every recommendation comes with a **"Why?"**:
+
+```
+Failure:              Insufficient funds
+Customer history:     Multiple successful payments
+Recovery probability: 77%
+Recommended action:   Send Payment Link
+Guardrail:            AUTO
+Reason:                Strong payment history + recoverable failure type
+```
+
+Explainable. Transparent. Auditable.
+
+---
 
 ## Architecture
 
-```text
-Next.js Dashboard
-       |
-       v
-    FastAPI
-       |
-       +--> SQLite
-       |
-       +--> Revenue Agent
-       |      +--> customer/payment tools
-       |      +--> recovery decision
-       |      +--> ROI + confidence
-       |      +--> guardrails
-       |
-       +--> Razorpay Test Mode (optional)
-       |
-       +--> Webhook / payment_link.paid
+```
+Transaction Data + Customer Context
+            ↓
+     AI Recovery Agent
+            ↓
+     Structured Decision
+            ↓
+    Guardrail Validation
+            ↓
+      Recovery Action
 ```
 
-## Stack
+**Deterministic Fallback** — works without an OpenAI key via a rule-based engine, so the app stays demoable and predictable even offline:
 
-- Frontend: Next.js + TypeScript + CSS
-- Backend: Python + FastAPI
-- Database: SQLite
-- AI: OpenAI Responses API with function tools (optional; rule-based fallback is included)
-- Payments: Razorpay Test Mode / Payment Links (optional)
-- Dataset: synthetic transactions generated for the demo
-
-## Prerequisites
-
-- Windows 10/11, macOS, or Linux
-- Python 3.11+
-- Node.js 20+
-- npm
-- Git
-- A browser
-- Optional: Razorpay Test Mode account and API keys
-- Optional: OpenAI API key
-
-## 1. Start the backend
-
-Windows PowerShell:
-
-```powershell
-cd backend
-py -3.11 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-copy .env.example .env
-python -m app.seed
-uvicorn app.main:app --reload --port 8000
+```
+Recovery Request → AI Available?
+   ├── YES → OpenAI Agent
+   └── NO  → Rule Engine
+        └── Structured Decision → Guardrails → Recovery Action
 ```
 
-If PowerShell blocks activation:
+---
 
-```powershell
-Set-ExecutionPolicy -Scope Process Bypass
-.\.venv\Scripts\Activate.ps1
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js + TypeScript |
+| Backend | Python + FastAPI |
+| Database | SQLite |
+| AI | OpenAI Responses API |
+| AI Fallback | Deterministic Rule Engine |
+| Payments | Razorpay Test Mode |
+| Data | Synthetic Transactions |
+| Docs | FastAPI / Swagger |
+
+---
+
+## Project Structure
+
 ```
-
-macOS/Linux:
-
-```bash
-cd backend
-python3.11 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-python -m app.seed
-uvicorn app.main:app --reload --port 8000
-```
-
-Backend:
-- http://localhost:8000
-- Swagger API docs: http://localhost:8000/docs
-
-## 2. Start the frontend
-
-Open a second terminal:
-
-```powershell
-cd frontend
-npm install
-copy .env.local.example .env.local
-npm run dev
-```
-
-Open:
-- http://localhost:3000
-
-## 3. First demo
-
-1. Open the dashboard.
-2. Click **Run Recovery Agent**.
-3. Watch the simulation process the synthetic failed payments.
-4. Open **Recovery Queue** to see recommendations.
-5. Click a transaction to see the **Why?** explanation.
-6. Use **Execute** on safe actions.
-7. Use **Approve & Execute** for guarded actions.
-8. Watch Revenue at Risk, Recoverable Revenue, Recovered Revenue and Recovery Rate change.
-
-## 4. OpenAI mode
-
-If `OPENAI_API_KEY` is set, the backend can use an OpenAI model for structured recovery decisions.
-
-Set in `backend/.env`:
-
-```env
-OPENAI_API_KEY=your_key
-OPENAI_MODEL=gpt-5.6
-```
-
-If the key is absent or the call fails, RecoverAI automatically uses the deterministic rule engine. This keeps the demo runnable without an LLM.
-
-## 5. Razorpay Test Mode
-
-Set:
-
-```env
-RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxx
-RAZORPAY_KEY_SECRET=xxxxxxxxxx
-RAZORPAY_WEBHOOK_SECRET=your_webhook_secret
-DEMO_MODE=false
-```
-
-The application only creates real payment links when `DEMO_MODE=false`.
-
-The code uses the Razorpay Payment Links API. For a hackathon, keep all keys in `.env` and never commit them.
-
-### Webhook
-
-The endpoint is:
-
-```text
-POST /api/webhooks/razorpay
-```
-
-For local webhook testing, expose port 8000 with a tunnel and configure the resulting HTTPS URL in Razorpay Test Mode.
-
-The webhook handler:
-- verifies `X-Razorpay-Signature`
-- checks `x-razorpay-event-id` for duplicates
-- handles `payment_link.paid`
-- updates the associated recovery record
-
-## 6. API endpoints
-
-```text
-GET  /api/health
-GET  /api/dashboard
-GET  /api/transactions
-GET  /api/recovery-queue
-GET  /api/transactions/{payment_id}
-POST /api/agent/run
-POST /api/recovery/{payment_id}/execute
-POST /api/recovery/{payment_id}/approve
-POST /api/webhooks/razorpay
-```
-
-## 7. Project structure
-
-```text
-recoverai/
+RecoverAI/
 ├── backend/
 │   ├── app/
 │   │   ├── agent.py
@@ -179,8 +184,7 @@ recoverai/
 │   │   ├── razorpay_client.py
 │   │   ├── schemas.py
 │   │   ├── seed.py
-│   │   ├── tools.py
-│   │   └── __init__.py
+│   │   └── tools.py
 │   ├── data/
 │   ├── .env.example
 │   └── requirements.txt
@@ -189,71 +193,167 @@ recoverai/
 │   │   ├── globals.css
 │   │   ├── layout.tsx
 │   │   └── page.tsx
-│   ├── components/
-│   │   └── Dashboard.tsx
-│   ├── lib/
-│   │   └── api.ts
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── next-env.d.ts
-│   └── .env.local.example
+│   ├── components/Dashboard.tsx
+│   ├── lib/api.ts
+│   └── package.json
+├── docs/images/
 └── README.md
 ```
 
-## What makes the project defensible in an interview
+---
 
-Do not describe it as "a chatbot".
+## Getting Started
 
-Describe the closed loop:
+### Prerequisites
+* Python 3.11+
+* Node.js 20+
+* npm, Git
 
-**Detect → Understand → Predict → Decide → Act → Monitor**
+### Backend
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate      # Windows: .venv\Scripts\activate
 
-The agent is bounded by rules:
-- suspicious/high-risk payments are not auto-recovered
-- discounts above the configured threshold require approval
-- refunds above the configured threshold require approval
-- every action is written to the audit trail
-- every recovery decision has a reason, confidence, expected recovery and ROI
+pip install -r requirements.txt
+cp .env.example .env           # Windows: copy .env.example .env
 
-## 3-minute demo script
+python -m app.seed
+uvicorn app.main:app --reload --port 8000
+```
+Runs at `http://localhost:8000` · Docs at `/docs`
 
-**0:00–0:30 — Problem**
+### Frontend
+```bash
+cd frontend
+npm install
+cp .env.local.example .env.local   # Windows: copy .env.local.example .env.local
+npm run dev
+```
+Runs at `http://localhost:3000`
 
-"Payment failure is not the end of a transaction. It is a revenue-recovery decision. RecoverAI finds that lost revenue and chooses the next best action."
+---
 
-**0:30–1:15 — Live agent**
+## Configuration
 
-Click Run Recovery Agent.
+**OpenAI** (optional — falls back to rule engine if unset)
+```env
+OPENAI_API_KEY=your_api_key
+OPENAI_MODEL=gpt-5.6
+```
 
-Show:
-- transactions scanned
-- failed payments
-- recoverable amount
-- expected recovery
-- actions selected
+**Razorpay Test Mode** (optional)
+```env
+RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxx
+RAZORPAY_KEY_SECRET=xxxxxxxxxx
+RAZORPAY_WEBHOOK_SECRET=your_webhook_secret
+DEMO_MODE=false
+```
+Keep `DEMO_MODE=true` until the Razorpay flow is ready. **Never commit API keys.**
 
-**1:15–2:15 — Explainability**
+---
 
-Open one transaction.
+## API Endpoints
 
-Show:
-- failure reason
-- customer history
-- recovery probability
-- expected recovery
-- why the action was selected
-- guardrail status
+```
+GET  /api/health
+GET  /api/dashboard
+GET  /api/transactions
+GET  /api/recovery-queue
+GET  /api/transactions/{payment_id}
 
-**2:15–2:45 — Execute**
+POST /api/agent/run
+POST /api/recovery/{payment_id}/execute
+POST /api/recovery/{payment_id}/approve
+POST /api/webhooks/razorpay
+```
+Interactive docs: `http://localhost:8000/docs`
 
-Create a test payment link or run the simulated action.
+---
 
-Show the action audit trail.
+## Demo Walkthrough
 
-**2:45–3:00 — Close**
+1. Open `http://localhost:3000`
+2. Click **Run Recovery Agent**
+3. Review the **Recovery Queue** (customer, amount, failure, probability, action, guardrail)
+4. Inspect a transaction — failure reason, history, probability, reasoning
+5. **Execute** (safe actions) or **Approve & Execute** (guarded actions)
+6. Watch the dashboard update: Revenue at Risk → Recoverable → Expected Recovery → Recovered → Recovery Rate
 
-"We are not using AI to tell a merchant what happened. We are using AI to decide and execute the next bounded revenue-recovery action."
+---
 
-## Important scope note
+## What Makes RecoverAI Different
 
-This is a prototype. The dataset is synthetic. The default mode simulates payment actions so the project can be demonstrated safely. Real Razorpay integration is optional and should remain in Test Mode for the hackathon.
+| System | Says |
+|---|---|
+| Traditional dashboard | "Payment failed." |
+| Basic analytics | "₹25,000 failed due to insufficient funds." |
+| Chatbot | "You should contact the customer." |
+| **RecoverAI** | "This ₹25,000 payment has a 77% recovery probability. Send a payment link — it satisfies guardrails. Expected recovery: ₹19,250." |
+
+```
+DATA → INTELLIGENCE → DECISION → ACTION → OUTCOME
+```
+
+---
+
+## Business Value
+
+Shifts merchants from reactive monitoring to proactive recovery — measuring success by **recovered revenue**, not just decisions generated:
+
+* How much revenue is at risk?
+* How much is recoverable?
+* What should we do?
+* How much do we expect to recover?
+* How much did we actually recover?
+
+---
+
+## Security & Safety
+
+* AI actions are bounded by application-level rules
+* High-risk actions require human approval
+* All decisions are recorded and auditable
+* Credentials live in environment variables, never in code
+* Razorpay integration targets Test Mode only
+* Demo Mode uses no real money; data is fully synthetic
+
+> Production deployment would additionally require: authentication, authorization, secret management, rate limiting, monitoring, compliance controls, database security, payment-provider security, and audit infrastructure.
+
+---
+
+## Prototype Scope
+
+Currently a **hackathon-ready prototype** using synthetic data and simulated actions by default, with Razorpay Test Mode available for live payment-link demos.
+
+```
+Failed Payment → AI Analysis → Recovery Prediction
+→ Intervention Selection → Guardrail Validation
+→ Recovery Action → Revenue Tracking
+```
+
+---
+
+## Future Possibilities
+
+* Subscription payment recovery
+* Checkout abandonment recovery
+* Invoice & B2B receivables recovery
+* Payment retry optimization
+* WhatsApp/SMS & multilingual recovery
+* Merchant-specific recovery policies
+* Advanced ML-based recovery prediction
+* Real-time recovery analytics
+
+---
+
+## Summary
+
+RecoverAI combines Payment Intelligence + AI Reasoning + Recovery Prediction + Financial Guardrails + Bounded Automation into one closed-loop system:
+
+```
+REVENUE AT RISK → DETECT → UNDERSTAND → PREDICT → DECIDE
+→ GUARDRAILS → ACT → MONITOR → RECOVERED REVENUE
+```
+
+**Don't just identify failed payments. Recover the revenue behind them.**
