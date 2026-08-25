@@ -242,7 +242,7 @@ OPENAI_API_KEY=your_api_key
 OPENAI_MODEL=gpt-5.6
 ```
 
-**Razorpay Test Mode** (optional)
+**Razorpay Test Mode** (Implemented)
 ```env
 RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxx
 RAZORPAY_KEY_SECRET=xxxxxxxxxx
