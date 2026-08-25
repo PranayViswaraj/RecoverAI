@@ -270,18 +270,6 @@ POST /api/webhooks/razorpay
 Interactive docs: `http://localhost:8000/docs`
 
 ---
-
-## Demo Walkthrough
-
-1. Open `http://localhost:3000`
-2. Click **Run Recovery Agent**
-3. Review the **Recovery Queue** (customer, amount, failure, probability, action, guardrail)
-4. Inspect a transaction — failure reason, history, probability, reasoning
-5. **Execute** (safe actions) or **Approve & Execute** (guarded actions)
-6. Watch the dashboard update: Revenue at Risk → Recoverable → Expected Recovery → Recovered → Recovery Rate
-
----
-
 ## What Makes RecoverAI Different
 
 | System | Says |
